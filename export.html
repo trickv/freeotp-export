@@ -24,7 +24,7 @@ div{margin:10px}
 </style>
 <a href="https://github.com/viljoviitanen/freeotp-export">Instructions at github</a>
 <br>
-FreeOTP adb backup file: <input id="file" type="file">
+FreeOTP adb backup file or tokens.xml: <input id="file" type="file">
 <script src="https://rawgit.com/viljoviitanen/pako/master/dist/pako_inflate.js"></script>
 <script src="https://rawgit.com/viljoviitanen/js-untar/master/build/dist/untar.js"></script>
 <script src="https://rawgit.com/viljoviitanen/qrcodejs/master/qrcode.min.js"></script>
@@ -125,6 +125,14 @@ if (!decoder) {
 }
 
 reader.onload = function(event) {
+  var first4bytes = decoder.decode(event.target.result.slice(0, 5));
+  console.log(first4bytes);
+  // likely that the user has submitted a tokens.xml file directly
+  if (first4bytes == "<?xml") {
+      console.log("Decoding submission as tokens.xml file");
+      parsexml(decoder.decode(event.target.result));
+      return;
+  }
   try {
     decompressed = pako.inflate(event.target.result.slice(24));
   }
